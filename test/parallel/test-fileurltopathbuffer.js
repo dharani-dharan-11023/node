@@ -70,3 +70,28 @@ throws(() => existsSync(fileURLToPath(testPath)), {
 // This variation succeeds because the URL is converted to a buffer
 // without trying to interpret the percent-encoded characters.
 ok(existsSync(fileURLToPathBuffer(testPath)));
+
+// Test for security: fileURLToPathBuffer should reject encoded path separators
+// to prevent path traversal attacks (like fileURLToPath does)
+{
+  // Test POSIX - encoded forward slash should be rejected
+  throws(() => {
+    fileURLToPathBuffer(new URL('file:///tmp/test%2f..%2fetc%2fpasswd'));
+  }, {
+    code: 'ERR_INVALID_FILE_URL_PATH'
+  });
+
+  // Test Windows - encoded backslash should be rejected  
+  throws(() => {
+    fileURLToPathBuffer(new URL('file:///C:/temp/test%5c..%5cetc%5cpasswd'));
+  }, {
+    code: 'ERR_INVALID_FILE_URL_PATH'
+  });
+
+  // Test Windows - encoded forward slash should also be rejected
+  throws(() => {
+    fileURLToPathBuffer(new URL('file:///C:/temp/test%2f..%2fetc%2fpasswd'));
+  }, {
+    code: 'ERR_INVALID_FILE_URL_PATH'
+  });
+}
