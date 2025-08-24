@@ -49,6 +49,12 @@ assert.strictEqual(path.win32.normalize('test/../C:/Windows'), '.\\C:\\Windows')
 assert.strictEqual(path.win32.normalize('test/../C:Windows'), '.\\C:Windows');
 assert.strictEqual(path.win32.normalize('./upload/../C:/Windows'), '.\\C:\\Windows');
 assert.strictEqual(path.win32.normalize('./upload/../C:x'), '.\\C:x');
+
+// Test related to fileURLToPathBuffer path traversal fix
+// These test cases help ensure that path normalization behaves consistently
+// with the URL-to-path conversion security fixes
+assert.strictEqual(path.win32.normalize('test/../../../etc/passwd'), '..\\..\\etc\\passwd');
+assert.strictEqual(path.posix.normalize('test/../../../etc/passwd'), '../../etc/passwd');
 assert.strictEqual(path.win32.normalize('test/../??/D:/Test'), '.\\??\\D:\\Test');
 assert.strictEqual(path.win32.normalize('test/C:/../../F:'), '.\\F:');
 assert.strictEqual(path.win32.normalize('test/C:foo/../../F:'), '.\\F:');
